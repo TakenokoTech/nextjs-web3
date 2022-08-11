@@ -12,13 +12,13 @@ export default function Index({ post }) {
 //   };
 // };
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  console.log("getStaticPaths");
-  return {
-    paths: [],
-    fallback: true, // can also be true or 'blocking'
-  };
-};
+// export const getStaticPaths: GetStaticPaths = async () => {
+//   console.log("getStaticPaths");
+//   return {
+//     paths: [],
+//     fallback: false,
+//   };
+// };
 
 // export const getServerSideProps: GetServerSideProps = async (context) => {
 //     console.log("getServerSideProps")
