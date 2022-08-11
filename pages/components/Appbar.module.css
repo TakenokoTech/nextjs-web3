@@ -1,0 +1,14 @@
+.root {
+    flex-grow: 1;
+    color: #04111dbf;
+    background-color: #ffffff;
+}
+
+.menuButton {
+    /*margin-right: theme("spacing.2");*/
+}
+
+.title {
+    /*flex-grow: 1;*/
+    /*text-align: center;*/
+}
