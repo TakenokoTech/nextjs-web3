@@ -1,14 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   swcMinify: true,
   images: {
-    loader: 'imgix',
-    path: 'https://example.com/myaccount/'
+    loader: "imgix",
+    path: "https://example.com/myaccount/",
   },
   exportPathMap: async (defaultPathMap, context) => ({
-    '/': {page: '/'}
-  })
-}
+    "/": { page: "/" },
+  }),
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
