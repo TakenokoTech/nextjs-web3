@@ -1,45 +1,50 @@
-declare var window: Window;
-
-interface RequestArguments {
-  method: string;
-  params?: unknown[] | object;
-}
-
-interface Ethereum {
-  selectedAddress: string;
-  request: (arg: RequestArguments) => Promise<unknown>;
-}
-
-interface Window {
+declare var window: {
   ethereum: Ethereum;
+};
+
+export interface Ethereum {
+  selectedAddress: string;
+  chainId: string;
+  on: (event: string, callback: (unknown) => void) => void;
+  request: (arg: {
+    method: string;
+    params?: unknown[] | object;
+  }) => Promise<unknown>;
 }
 
 export interface MetamaskAccountState {
   ethereum: Ethereum;
   account: string;
+  network: string;
 }
 
-export async function getMetamask(): Promise<MetamaskAccountState | null> {
-  if (typeof window.ethereum === "undefined") return null;
+async function getMetamask(): Promise<MetamaskAccountState> {
+  if (typeof window.ethereum === "undefined") return;
   console.log("MetaMask is installed!");
 
   const ethereum = window.ethereum;
   const accounts = (await ethereum.request({
     method: "eth_requestAccounts",
   })) as string[];
+
   const account = accounts[0];
-  console.log(account);
+  const network =
+    {
+      "0x1": "Mainnet",
+      "0x3": "Ropsten",
+      "0x4": "Rinkeby",
+      "0x5": "Goerli",
+      "0x2a": "Kovan",
+    }[ethereum.chainId] ?? "Unknown";
 
   return {
     ethereum,
     account,
+    network,
   };
 }
 
-export async function sendEth(
-  accountState: MetamaskAccountState,
-  to: string = ""
-) {
+async function sendEth(accountState: MetamaskAccountState, to: string = "") {
   const transactionParameters = {
     to: to.length > 0 ? to : accountState.ethereum.selectedAddress,
     from: accountState.ethereum.selectedAddress,
@@ -53,3 +58,8 @@ export async function sendEth(
     params: [transactionParameters],
   });
 }
+
+export default {
+  getMetamask,
+  sendEth,
+};

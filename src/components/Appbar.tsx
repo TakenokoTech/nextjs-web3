@@ -1,9 +1,17 @@
 import AccountCircleOutlined from "@mui/icons-material/AccountCircleOutlined";
-import { AppBar, Box, IconButton, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  IconButton,
+  Stack,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import styles from "./Appbar.module.css";
 
 interface AppbarProps {
   address: string;
+  network: string;
 }
 
 // https://mui.com/material-ui/react-app-bar/
@@ -20,6 +28,27 @@ export default function Appbar(props: AppbarProps) {
     </IconButton>
   );
 
+  const AddressText = () => (
+    <Stack spacing={0} paddingRight={2}>
+      {props.address.length > 0 ? (
+        <>
+          <Typography>
+            {props.address.slice(0, 5) + "..." + props.address.slice(-4)}
+          </Typography>
+          <Typography
+            color={props.address.length > 0 ? "#42b983" : null}
+            variant="caption"
+            lineHeight={1.2}
+          >
+            Connected to {props.network}
+          </Typography>
+        </>
+      ) : (
+        <Typography>未接続</Typography>
+      )}
+    </Stack>
+  );
+
   return (
     <div className={styles.root}>
       <Box sx={{ flexGrow: 1 }}>
@@ -31,15 +60,8 @@ export default function Appbar(props: AppbarProps) {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Next Web3
             </Typography>
+            <AddressText />
             <CustomIconButton>
-              <Typography
-                style={{ paddingRight: 8 }}
-                // color={props.address.length > 0 ? "#42b983" : null}
-              >
-                {props.address.length > 0
-                  ? props.address.slice(0, 5) + "..." + props.address.slice(-4)
-                  : "未接続"}
-              </Typography>
               <AccountCircleOutlined
                 style={{
                   width: "1.4em",
