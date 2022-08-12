@@ -1,4 +1,6 @@
 import Web3 from "web3";
+import { AbiItem } from "web3-utils";
+import ABI from "../../contract/build/contracts/Greeter.json";
 import { Ethereum } from "./MetaMaskRepository";
 
 declare var window: {
@@ -29,9 +31,16 @@ async function createAccount(web3: Web3): Promise<string | null> {
   return null;
 }
 
+async function callContract(web3: Web3, address: string): Promise<string> {
+  const abi = ABI.abi as AbiItem[];
+  const contract = new web3.eth.Contract(abi, address);
+  return await contract.methods.hello().call();
+}
+
 export default {
   connect,
   getAccount,
   getBalance,
   createAccount,
+  callContract,
 };

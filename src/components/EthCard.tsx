@@ -11,8 +11,8 @@ interface EthCardProps {
   title: string;
   subtitle: string;
   canActions: boolean;
-  buttonText: string;
-  onClick: () => void;
+  buttonText?: string;
+  onClick?: () => void;
   children?: ReactNode;
 }
 
@@ -31,7 +31,12 @@ export default function EthCard(props: EthCardProps) {
 
   const actions = (
     <CardActions style={{ display: props.canActions ? null : "none" }}>
-      <Button variant="outlined" fullWidth onClick={() => props.onClick()}>
+      <Button
+        variant="outlined"
+        fullWidth
+        onClick={() => props.onClick()}
+        style={{ textTransform: "none" }}
+      >
         {props.buttonText}
       </Button>
     </CardActions>

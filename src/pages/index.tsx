@@ -1,4 +1,4 @@
-import { Box, Container, Stack, Typography } from "@mui/material";
+import { Box, Container, Stack, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import Web3 from "web3";
 import Appbar from "../components/Appbar";
@@ -11,11 +11,14 @@ import MetaMaskRepository, {
 import { useAsyncEffect } from "../utils/HooksUtils";
 
 export default function Index({}) {
+  const CONTRACT_ADDRESS = "0x7AE8555ce0aBE5f930e71874fE99f5dF4Ece8ef9";
+
   const [account, setAccount] = useState<MetamaskAccountState>();
 
   const [web3, setWeb3] = useState<Web3>();
   const [web3Account, setWeb3Account] = useState<string>();
   const [web3Balance, setWeb3Balance] = useState<string>();
+  const [web3Button, setWeb3Button] = useState<string>("");
 
   useAsyncEffect(async () => {
     console.log("useAsyncEffect");
@@ -35,7 +38,14 @@ export default function Index({}) {
     await MetaMaskRepository.sendEth(account, toAddress);
   };
 
-  const onClickConnect = async () => {};
+  const onClickConnect = async () => {
+    try {
+      const result = await EthRepository.callContract(web3, CONTRACT_ADDRESS);
+      setWeb3Button(result);
+    } catch (e) {
+      setWeb3Button("エラーになりました。\nRopstenネットワークで試してね。");
+    }
+  };
 
   return (
     <>
@@ -52,19 +62,33 @@ export default function Index({}) {
               canActions={!!account}
               onClick={onClickSentEth}
             />
-            <EthCard
-              title={"Web3.jsを利用"}
-              subtitle={""}
-              canActions={!!account}
-              onClick={onClickConnect}
-              buttonText={"connect"}
-            >
+            <EthCard title={"Web3.js"} subtitle={""} canActions={false}>
               <Typography variant="body2" display={web3Account ? null : "none"}>
                 account: {web3Account}
               </Typography>
               <Typography variant="body2" display={web3Balance ? null : "none"}>
                 balance: {web3Balance} ether
               </Typography>
+            </EthCard>
+            <EthCard
+              title={"コントラクトに挨拶しませんか？"}
+              subtitle={""}
+              canActions={!!account}
+              onClick={onClickConnect}
+              buttonText={"ハローコンストラクト！"}
+            >
+              <Typography variant="body2" display={web3Balance ? null : "none"}>
+                contract address: {CONTRACT_ADDRESS}
+              </Typography>
+              <Box sx={{ p: 2 }}></Box>
+              <TextField
+                label={web3Button.length > 1 ? "メッセージが届いたよ" : ""}
+                multiline
+                fullWidth
+                disabled={web3Button.length == 0}
+                rows={2}
+                value={web3Button}
+              />
             </EthCard>
           </Stack>
         </Box>
