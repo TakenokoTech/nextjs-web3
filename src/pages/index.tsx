@@ -19,22 +19,23 @@ export default function Index({}) {
 
   useAsyncEffect(async () => {
     console.log("useAsyncEffect");
+
     const account = await MetaMaskRepository.getMetamask();
     setAccount(account);
     account.ethereum.on("accountsChanged", () => window.location.reload());
     account.ethereum.on("chainChanged", () => window.location.reload());
+
+    const web3 = await EthRepository.connect(account.network);
+    setWeb3(web3);
+    setWeb3Account(await EthRepository.getAccount(web3));
+    setWeb3Balance(await EthRepository.getBalance(web3));
   }, []);
 
   const onClickSentEth = async (toAddress: string) => {
     await MetaMaskRepository.sendEth(account, toAddress);
   };
 
-  const onClickConnect = async () => {
-    const web3 = await EthRepository.connect(account.network);
-    setWeb3(web3);
-    setWeb3Account(await EthRepository.getAccount(web3));
-    setWeb3Balance(await EthRepository.getBalance(web3));
-  };
+  const onClickConnect = async () => {};
 
   return (
     <>
