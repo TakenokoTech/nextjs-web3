@@ -62,11 +62,14 @@ export default function Index({}) {
               canActions={!!account}
               onClick={onClickSentEth}
             />
-            <EthCard title={"Web3.js"} subtitle={""} canActions={false}>
-              <Typography variant="body2" display={web3Account ? null : "none"}>
-                account: {web3Account}
-              </Typography>
-              <Typography variant="body2" display={web3Balance ? null : "none"}>
+            <EthCard
+              title={"Web3.js"}
+              subtitle={""}
+              canActions={false}
+              display={web3Account ? null : "none"}
+            >
+              <Typography variant="body2">account: {web3Account}</Typography>
+              <Typography variant="body2">
                 balance: {web3Balance} ether
               </Typography>
             </EthCard>
@@ -76,6 +79,7 @@ export default function Index({}) {
               canActions={!!account}
               onClick={onClickConnect}
               buttonText={"ハローコンストラクト！"}
+              display={web3Account ? null : "none"}
             >
               <Typography variant="body2" display={web3Balance ? null : "none"}>
                 contract address: {CONTRACT_ADDRESS}

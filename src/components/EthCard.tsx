@@ -13,6 +13,7 @@ interface EthCardProps {
   canActions: boolean;
   buttonText?: string;
   onClick?: () => void;
+  display?: null | "none";
   children?: ReactNode;
 }
 
@@ -43,7 +44,7 @@ export default function EthCard(props: EthCardProps) {
   );
 
   return (
-    <Card sx={{ minWidth: 275 }}>
+    <Card sx={{ minWidth: 400, display: props.display }}>
       {content}
       {actions}
     </Card>
