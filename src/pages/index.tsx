@@ -78,7 +78,7 @@ export default function Index({}) {
               subtitle={""}
               canActions={!!account}
               onClick={onClickConnect}
-              buttonText={"ハローコンストラクト！"}
+              buttonText={"ハローコントラクト！"}
               display={web3Account ? null : "none"}
             >
               <Typography variant="body2" display={web3Balance ? null : "none"}>
