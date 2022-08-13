@@ -1,14 +1,12 @@
 import { Box, Container, Stack, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
 import Appbar from "../components/Appbar";
 import EthCard from "../components/EthCard";
 import MetamaskCard from "../components/MetamaskCard";
-import EthRepository, {
-  CONTRACT_ADDRESS,
-  Tweet,
-} from "../features/EthRepository";
+import TweetCard from "../components/TweetCard";
+import EthRepository, { CONTRACT_ADDRESS } from "../features/EthRepository";
 import MetaMaskRepository, {
   MetamaskAccountState,
 } from "../features/MetaMaskRepository";
@@ -19,11 +17,9 @@ export default function Index({}) {
   const [web3, setWeb3] = useState<Web3>();
   const [web3Account, setWeb3Account] = useState<string>();
   const [web3Balance, setWeb3Balance] = useState<string>();
-  const [web3Button, setWeb3Button] = useState<string>("");
+  const [web3HalloText, setWeb3HalloText] = useState<string>("");
 
   const [contract, setContract] = useState<Contract>();
-  const [timerId, setTimerId] = useState<NodeJS.Timer>(null);
-  const [pastTweets, setPastTweets] = useState<Tweet[]>([]);
 
   useAsyncEffect(async () => {
     console.log("useAsyncEffect");
@@ -40,42 +36,16 @@ export default function Index({}) {
     setWeb3Balance(await EthRepository.getBalance(web3));
   }, []);
 
-  useEffect(() => {
-    contract?.events
-      .Tweet()
-      .on("data", (event) => console.log("data", event))
-      .on("changed", (event) => console.log("changed", event))
-      .on("error", (event) => console.error("error", event));
-  }, [contract]);
-
-  useEffect(() => {
-    const func = async () => {
-      setPastTweets(await EthRepository.getPastTweet(contract));
-      console.log("tweets", pastTweets);
-    };
-    clearInterval(timerId);
-    setTimerId(setInterval(func, 1000));
-  }, [contract != null]);
-
   const onClickSentEth = async (toAddress: string) => {
     await MetaMaskRepository.sendEth(account, toAddress);
   };
 
   const onClickHello = async () => {
     try {
-      setWeb3Button(await EthRepository.callHello(contract));
+      setWeb3HalloText(await EthRepository.callHello(contract));
     } catch (e) {
       console.warn(e);
-      setWeb3Button("エラーになりました。\nRopstenネットワークで試してね。");
-    }
-  };
-
-  const onClickTweet = async () => {
-    try {
-      await EthRepository.callTweet(contract, "hello");
-    } catch (e) {
-      console.warn(e);
-      setWeb3Button("エラーになりました。\nRopstenネットワークで試してね。");
+      setWeb3HalloText("エラーになりました。\nRopstenネットワークで試してね。");
     }
   };
 
@@ -91,13 +61,13 @@ export default function Index({}) {
               message={
                 account ? "送金できます！" : "ページをリロードしてください。"
               }
-              canActions={!!account}
+              hiddenActions={!account}
               onClick={onClickSentEth}
             />
             <EthCard
               title={"Web3.js"}
               subtitle={""}
-              canActions={false}
+              hiddenActions={true}
               display={web3Account ? null : "none"}
             >
               <Typography variant="body2">account: {web3Account}</Typography>
@@ -108,7 +78,6 @@ export default function Index({}) {
             <EthCard
               title={"コントラクトに挨拶しませんか？"}
               subtitle={""}
-              canActions={!!account}
               onClick={onClickHello}
               buttonText={"ハローコントラクト！"}
               display={web3Account ? null : "none"}
@@ -118,14 +87,26 @@ export default function Index({}) {
               </Typography>
               <Box sx={{ p: 2 }}></Box>
               <TextField
-                label={web3Button.length > 1 ? "メッセージが届いたよ" : ""}
+                label={web3HalloText.length > 1 ? "メッセージが届いたよ" : ""}
                 multiline
                 fullWidth
-                disabled={web3Button.length == 0}
+                disabled={web3HalloText.length == 0}
                 rows={2}
-                value={web3Button}
+                value={web3HalloText}
               />
             </EthCard>
+            <TweetCard
+              web3={web3}
+              contract={contract}
+              title={"Ethにつぶやく"}
+              subtitle={""}
+              buttonText={"ツイート"}
+              display={web3Account ? null : "none"}
+            >
+              <Typography variant="body2">
+                イーサリアムにつぶやきを残せます。（ガス代がかかります。）
+              </Typography>
+            </TweetCard>
           </Stack>
         </Box>
       </Container>

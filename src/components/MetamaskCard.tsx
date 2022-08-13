@@ -12,7 +12,7 @@ interface BasicCardProps {
   title: string;
   subtitle: string;
   message: string;
-  canActions: boolean;
+  hiddenActions?: boolean;
   onClick: (toAddress: string) => void;
   children?: ReactNode;
 }
@@ -33,7 +33,7 @@ export default function MetamaskCard(props: BasicCardProps) {
   );
 
   const actions = (
-    <CardActions style={{ display: props.canActions ? null : "none" }}>
+    <CardActions style={{ display: props.hiddenActions ? "none" : null }}>
       <TextField
         fullWidth
         label="to address"

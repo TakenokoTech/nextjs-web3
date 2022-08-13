@@ -10,7 +10,7 @@ import { ReactNode } from "react";
 interface EthCardProps {
   title: string;
   subtitle: string;
-  canActions: boolean;
+  hiddenActions?: boolean;
   buttonText?: string;
   onClick?: () => void;
   display?: null | "none";
@@ -31,7 +31,7 @@ export default function EthCard(props: EthCardProps) {
   );
 
   const actions = (
-    <CardActions style={{ display: props.canActions ? null : "none" }}>
+    <CardActions style={{ display: props.hiddenActions ? "none" : null }}>
       <Button
         variant="outlined"
         fullWidth

@@ -13,6 +13,7 @@ declare var window: {
 export interface Tweet {
   address: string;
   message: string;
+  timestamp: number;
 }
 
 async function connect(): Promise<{ web3: Web3; contract: Contract }> {
@@ -54,15 +55,21 @@ async function callTweet(contract: Contract, text: string): Promise<void> {
   await contract.methods.tweet(text).send();
 }
 
-async function getPastTweet(contract: Contract): Promise<Tweet[]> {
+async function getPastTweet(contract: Contract, web3: Web3): Promise<Tweet[]> {
   const events = await contract.getPastEvents("Tweet", {
     fromBlock: 0,
     toBlock: "latest",
   });
-  return events.map((e) => ({
-    address: e.returnValues["_from"],
-    message: e.returnValues["_msg"],
-  }));
+  return await Promise.all(
+    events.map(async (e) => {
+      const block = await web3.eth.getBlock(e.blockNumber);
+      return {
+        address: e.returnValues["_from"],
+        message: e.returnValues["_msg"],
+        timestamp: +block.timestamp,
+      };
+    })
+  );
 }
 
 export default {
