@@ -1,17 +1,32 @@
 import Web3 from "web3";
+import { Contract } from "web3-eth-contract";
 import { AbiItem } from "web3-utils";
-import ABI from "../../contract/build/contracts/Greeter.json";
+import Greeter from "../../contract/build/contracts/Greeter.json";
 import { Ethereum } from "./MetaMaskRepository";
+
+export const CONTRACT_ADDRESS = "0x69ad6786c3D514c9Db2323daa0FBAb1aA28E460e";
 
 declare var window: {
   ethereum: Ethereum & undefined;
 };
 
-async function connect(network: string): Promise<Web3> {
-  // const host = (network: string) =>
-  //   `https://${network.toLowerCase()}.infura.io/v3/350520819d3d4ffaa47d0b8d57555148`;
+export interface Tweet {
+  address: string;
+  message: string;
+}
+
+async function connect(): Promise<{ web3: Web3; contract: Contract }> {
+  // const host = (network: string) => `https://${network.toLowerCase()}.infura.io/v3/350520819d3d4ffaa47d0b8d57555148`;
   // return new Web3(new Web3.providers.HttpProvider(host(network)));
-  return new Web3(window.ethereum);
+  const web3 = new Web3(window.ethereum);
+  const contract = new web3.eth.Contract(
+    Greeter.abi as AbiItem[],
+    CONTRACT_ADDRESS,
+    {
+      from: await getAccount(web3),
+    }
+  );
+  return { web3, contract };
 }
 
 async function getAccount(web3: Web3): Promise<string> {
@@ -31,10 +46,23 @@ async function createAccount(web3: Web3): Promise<string | null> {
   return null;
 }
 
-async function callContract(web3: Web3, address: string): Promise<string> {
-  const abi = ABI.abi as AbiItem[];
-  const contract = new web3.eth.Contract(abi, address);
+async function callHello(contract: Contract): Promise<string> {
   return await contract.methods.hello().call();
+}
+
+async function callTweet(contract: Contract, text: string): Promise<void> {
+  await contract.methods.tweet(text).send();
+}
+
+async function getPastTweet(contract: Contract): Promise<Tweet[]> {
+  const events = await contract.getPastEvents("Tweet", {
+    fromBlock: 0,
+    toBlock: "latest",
+  });
+  return events.map((e) => ({
+    address: e.returnValues["_from"],
+    message: e.returnValues["_msg"],
+  }));
 }
 
 export default {
@@ -42,5 +70,7 @@ export default {
   getAccount,
   getBalance,
   createAccount,
-  callContract,
+  callHello,
+  callTweet,
+  getPastTweet,
 };

@@ -1,24 +1,29 @@
 import { Box, Container, Stack, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Web3 from "web3";
+import { Contract } from "web3-eth-contract";
 import Appbar from "../components/Appbar";
 import EthCard from "../components/EthCard";
 import MetamaskCard from "../components/MetamaskCard";
-import EthRepository from "../features/EthRepository";
+import EthRepository, {
+  CONTRACT_ADDRESS,
+  Tweet,
+} from "../features/EthRepository";
 import MetaMaskRepository, {
   MetamaskAccountState,
 } from "../features/MetaMaskRepository";
 import { useAsyncEffect } from "../utils/HooksUtils";
 
 export default function Index({}) {
-  const CONTRACT_ADDRESS = "0x7AE8555ce0aBE5f930e71874fE99f5dF4Ece8ef9";
-
   const [account, setAccount] = useState<MetamaskAccountState>();
-
   const [web3, setWeb3] = useState<Web3>();
   const [web3Account, setWeb3Account] = useState<string>();
   const [web3Balance, setWeb3Balance] = useState<string>();
   const [web3Button, setWeb3Button] = useState<string>("");
+
+  const [contract, setContract] = useState<Contract>();
+  const [timerId, setTimerId] = useState<NodeJS.Timer>(null);
+  const [pastTweets, setPastTweets] = useState<Tweet[]>([]);
 
   useAsyncEffect(async () => {
     console.log("useAsyncEffect");
@@ -28,21 +33,48 @@ export default function Index({}) {
     account.ethereum.on("accountsChanged", () => window.location.reload());
     account.ethereum.on("chainChanged", () => window.location.reload());
 
-    const web3 = await EthRepository.connect(account.network);
+    const { web3, contract } = await EthRepository.connect();
     setWeb3(web3);
+    setContract(contract);
     setWeb3Account(await EthRepository.getAccount(web3));
     setWeb3Balance(await EthRepository.getBalance(web3));
   }, []);
+
+  useEffect(() => {
+    contract?.events
+      .Tweet()
+      .on("data", (event) => console.log("data", event))
+      .on("changed", (event) => console.log("changed", event))
+      .on("error", (event) => console.error("error", event));
+  }, [contract]);
+
+  useEffect(() => {
+    const func = async () => {
+      setPastTweets(await EthRepository.getPastTweet(contract));
+      console.log("tweets", pastTweets);
+    };
+    clearInterval(timerId);
+    setTimerId(setInterval(func, 1000));
+  }, [contract != null]);
 
   const onClickSentEth = async (toAddress: string) => {
     await MetaMaskRepository.sendEth(account, toAddress);
   };
 
-  const onClickConnect = async () => {
+  const onClickHello = async () => {
     try {
-      const result = await EthRepository.callContract(web3, CONTRACT_ADDRESS);
-      setWeb3Button(result);
+      setWeb3Button(await EthRepository.callHello(contract));
     } catch (e) {
+      console.warn(e);
+      setWeb3Button("エラーになりました。\nRopstenネットワークで試してね。");
+    }
+  };
+
+  const onClickTweet = async () => {
+    try {
+      await EthRepository.callTweet(contract, "hello");
+    } catch (e) {
+      console.warn(e);
       setWeb3Button("エラーになりました。\nRopstenネットワークで試してね。");
     }
   };
@@ -77,7 +109,7 @@ export default function Index({}) {
               title={"コントラクトに挨拶しませんか？"}
               subtitle={""}
               canActions={!!account}
-              onClick={onClickConnect}
+              onClick={onClickHello}
               buttonText={"ハローコントラクト！"}
               display={web3Account ? null : "none"}
             >
