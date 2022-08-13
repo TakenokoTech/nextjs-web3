@@ -15,11 +15,12 @@ import { useAsyncEffect } from "../utils/HooksUtils";
 export default function Index({}) {
   const [account, setAccount] = useState<MetamaskAccountState>();
   const [web3, setWeb3] = useState<Web3>();
+  const [contract, setContract] = useState<Contract>();
   const [web3Account, setWeb3Account] = useState<string>();
   const [web3Balance, setWeb3Balance] = useState<string>();
   const [web3HalloText, setWeb3HalloText] = useState<string>("");
 
-  const [contract, setContract] = useState<Contract>();
+  const isRopsten = web3Account && account.network == "Ropsten";
 
   useAsyncEffect(async () => {
     console.log("useAsyncEffect");
@@ -58,10 +59,13 @@ export default function Index({}) {
             <MetamaskCard
               title={"MetaMaskに接続" + (account ? "しました" : "できません")}
               subtitle={""}
-              message={
-                account ? "送金できます！" : "ページをリロードしてください。"
-              }
-              hiddenActions={!account}
+              message={(() => {
+                if (account && isRopsten) return "送金できます！";
+                if (account && !isRopsten)
+                  return "Ropstenネットワークに接続すると色々な事ができるようになります。";
+                return "ページをリロードしてください。";
+              })()}
+              hiddenActions={!account || !isRopsten}
               onClick={onClickSentEth}
             />
             <EthCard
@@ -80,7 +84,7 @@ export default function Index({}) {
               subtitle={""}
               onClick={onClickHello}
               buttonText={"ハローコントラクト！"}
-              display={web3Account ? null : "none"}
+              display={isRopsten ? null : "none"}
             >
               <Typography variant="body2" display={web3Balance ? null : "none"}>
                 contract address: {CONTRACT_ADDRESS}
@@ -101,7 +105,7 @@ export default function Index({}) {
               title={"Ethにつぶやく"}
               subtitle={""}
               buttonText={"ツイート"}
-              display={web3Account ? null : "none"}
+              display={isRopsten ? null : "none"}
             >
               <Typography variant="body2">
                 イーサリアムにつぶやきを残せます。（ガス代がかかります。）
