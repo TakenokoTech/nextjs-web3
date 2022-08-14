@@ -32,9 +32,7 @@ export default function Appbar(props: AppbarProps) {
     <Stack spacing={0} paddingRight={2}>
       {props.address.length > 0 ? (
         <>
-          <Typography>
-            {props.address.slice(0, 5) + "..." + props.address.slice(-4)}
-          </Typography>
+          <Typography>{props.address.toShortAddress()}</Typography>
           <Typography
             color={props.address.length > 0 ? "#42b983" : null}
             variant="caption"

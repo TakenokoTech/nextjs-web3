@@ -6,29 +6,32 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 
-interface BasicCardProps {
+interface MetamaskCardProps {
   title: string;
-  subtitle: string;
   message: string;
+  account: string;
+  balance: string;
   hiddenActions?: boolean;
   onClick: (toAddress: string) => void;
-  children?: ReactNode;
 }
 
-export default function MetamaskCard(props: BasicCardProps) {
-  const [text, setText] = useState("");
+export default function MetamaskCard(props: MetamaskCardProps) {
+  const [sendAmount, setSendAmount] = useState("");
 
   const content = (
     <CardContent>
-      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-        {props.subtitle}
-      </Typography>
       <Typography sx={{ mb: 1.5 }} variant="h5" component="div">
         {props.title}
       </Typography>
       <Typography variant="body2">{props.message}</Typography>
+      <Typography variant="body2" display={props.account ? null : "none"}>
+        account: {props.account?.toShortAddress()}
+      </Typography>
+      <Typography variant="body2" display={props.balance ? null : "none"}>
+        balance: {(+props.balance).toFixed(6)} ether
+      </Typography>
     </CardContent>
   );
 
@@ -38,17 +41,17 @@ export default function MetamaskCard(props: BasicCardProps) {
         fullWidth
         label="to address"
         size="small"
-        value={text}
-        onChange={({ target }) => setText(target.value)}
+        value={sendAmount}
+        onChange={({ target }) => setSendAmount(target.value)}
       />
-      <Button size="small" onClick={() => props.onClick(text)}>
+      <Button size="small" onClick={() => props.onClick(sendAmount)}>
         送金
       </Button>
     </CardActions>
   );
 
   return (
-    <Card sx={{ minWidth: 275 }}>
+    <Card sx={{}}>
       {content}
       {actions}
     </Card>

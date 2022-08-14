@@ -1,21 +1,21 @@
 import { Box, Container, Stack, TextField, Typography } from "@mui/material";
 import { useState } from "react";
-import Web3 from "web3";
-import { Contract } from "web3-eth-contract";
 import Appbar from "../components/Appbar";
 import EthCard from "../components/EthCard";
 import MetamaskCard from "../components/MetamaskCard";
 import TweetCard from "../components/TweetCard";
-import EthRepository, { CONTRACT_ADDRESS } from "../features/EthRepository";
+import EthRepository, {
+  CONTRACT_ADDRESS,
+  EthState,
+} from "../features/EthRepository";
 import MetaMaskRepository, {
-  MetamaskAccountState,
+  MetamaskState,
 } from "../features/MetaMaskRepository";
 import { useAsyncEffect } from "../utils/HooksUtils";
 
 export default function Index({}) {
-  const [account, setAccount] = useState<MetamaskAccountState>();
-  const [web3, setWeb3] = useState<Web3>();
-  const [contract, setContract] = useState<Contract>();
+  const [account, setAccount] = useState<MetamaskState>();
+  const [eth, setEth] = useState<EthState>();
   const [web3Account, setWeb3Account] = useState<string>();
   const [web3Balance, setWeb3Balance] = useState<string>();
   const [web3HalloText, setWeb3HalloText] = useState<string>("");
@@ -30,11 +30,10 @@ export default function Index({}) {
     account.ethereum.on("accountsChanged", () => window.location.reload());
     account.ethereum.on("chainChanged", () => window.location.reload());
 
-    const { web3, contract } = await EthRepository.connect();
-    setWeb3(web3);
-    setContract(contract);
-    setWeb3Account(await EthRepository.getAccount(web3));
-    setWeb3Balance(await EthRepository.getBalance(web3));
+    const state = await EthRepository.connect();
+    setEth(state);
+    setWeb3Account(await EthRepository.getAccount(state.web3));
+    setWeb3Balance(await EthRepository.getBalance(state.web3));
   }, []);
 
   const onClickSentEth = async (toAddress: string) => {
@@ -43,7 +42,7 @@ export default function Index({}) {
 
   const onClickHello = async () => {
     try {
-      setWeb3HalloText(await EthRepository.callHello(contract));
+      setWeb3HalloText(await EthRepository.callHello(eth.contract));
     } catch (e) {
       console.warn(e);
       setWeb3HalloText("エラーになりました。\nRopstenネットワークで試してね。");
@@ -58,27 +57,17 @@ export default function Index({}) {
           <Stack spacing={2}>
             <MetamaskCard
               title={"MetaMaskに接続" + (account ? "しました" : "できません")}
-              subtitle={""}
               message={(() => {
-                if (account && isRopsten) return "送金できます！";
+                if (account && isRopsten) return "";
                 if (account && !isRopsten)
                   return "Ropstenネットワークに接続すると色々な事ができるようになります。";
                 return "ページをリロードしてください。";
               })()}
               hiddenActions={!account || !isRopsten}
               onClick={onClickSentEth}
+              account={web3Account}
+              balance={web3Balance}
             />
-            <EthCard
-              title={"Web3.js"}
-              subtitle={""}
-              hiddenActions={true}
-              display={web3Account ? null : "none"}
-            >
-              <Typography variant="body2">account: {web3Account}</Typography>
-              <Typography variant="body2">
-                balance: {web3Balance} ether
-              </Typography>
-            </EthCard>
             <EthCard
               title={"コントラクトに挨拶しませんか？"}
               subtitle={""}
@@ -87,7 +76,7 @@ export default function Index({}) {
               display={isRopsten ? null : "none"}
             >
               <Typography variant="body2" display={web3Balance ? null : "none"}>
-                contract address: {CONTRACT_ADDRESS}
+                contract address: {CONTRACT_ADDRESS.toShortAddress()}
               </Typography>
               <Box sx={{ p: 2 }}></Box>
               <TextField
@@ -100,8 +89,7 @@ export default function Index({}) {
               />
             </EthCard>
             <TweetCard
-              web3={web3}
-              contract={contract}
+              ethState={eth}
               title={"Ethにつぶやく"}
               subtitle={""}
               buttonText={"ツイート"}

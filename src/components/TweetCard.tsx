@@ -13,13 +13,10 @@ import {
 } from "@mui/material";
 import moment from "moment";
 import { ReactNode, useEffect, useState } from "react";
-import Web3 from "web3";
-import { Contract } from "web3-eth-contract";
-import EthRepository, { Tweet } from "../features/EthRepository";
+import EthRepository, { EthState, Tweet } from "../features/EthRepository";
 
 interface TweetCardProps {
-  web3: Web3;
-  contract: Contract;
+  ethState?: EthState;
   title: string;
   subtitle: string;
   buttonText?: string;
@@ -33,30 +30,28 @@ export default function TweetCard(props: TweetCardProps) {
   const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
-    props.contract?.events
+    props.ethState?.contract?.events
       .Tweet()
       .on("data", (event) => console.log("data", event))
       .on("changed", (event) => console.log("changed", event))
       .on("error", (event) => console.error("error", event));
-  }, [props.contract]);
+  }, [props.ethState?.contract]);
 
   useEffect(() => {
     const func = async () => {
-      setPastTweets(
-        await EthRepository.getPastTweet(props.contract, props.web3)
-      );
+      setPastTweets(await EthRepository.getPastTweet(props.ethState));
     };
-    if (!props.contract) return;
+    if (!props.ethState?.contract) return;
     func();
     clearInterval(timerId);
     setTimerId(setInterval(func, 1000));
-  }, [props.contract]);
+  }, [props.ethState?.contract]);
 
   const onClickTweet = async () => {
     const msg = message;
     try {
       setMessage("");
-      await EthRepository.callTweet(props.contract, msg);
+      await EthRepository.callTweet(props.ethState.contract, msg);
     } catch (e) {
       console.warn(e);
       setMessage(msg);
@@ -84,7 +79,7 @@ export default function TweetCard(props: TweetCardProps) {
                 <Avatar />
               </ListItemAvatar>
               <ListItemText
-                primary={`${address} (${time})`}
+                primary={`${address.toShortAddress()} (${time})`}
                 secondary={tweet.message}
               />
             </ListItem>
@@ -92,7 +87,7 @@ export default function TweetCard(props: TweetCardProps) {
         })}
       </List>
       <TextField
-        label={""}
+        label={"今なにしてる？"}
         multiline
         fullWidth
         rows={2}
@@ -116,7 +111,7 @@ export default function TweetCard(props: TweetCardProps) {
   );
 
   return (
-    <Card sx={{ minWidth: 400, display: props.display }}>
+    <Card sx={{ display: props.display }}>
       {content}
       {actions}
     </Card>

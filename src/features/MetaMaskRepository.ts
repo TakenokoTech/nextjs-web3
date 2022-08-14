@@ -12,13 +12,13 @@ export interface Ethereum {
   }) => Promise<unknown>;
 }
 
-export interface MetamaskAccountState {
+export interface MetamaskState {
   ethereum: Ethereum;
   account: string;
   network: string;
 }
 
-async function getMetamask(): Promise<MetamaskAccountState> {
+async function getMetamask(): Promise<MetamaskState> {
   if (typeof window.ethereum === "undefined") return;
   console.log("MetaMask is installed!");
 
@@ -44,16 +44,16 @@ async function getMetamask(): Promise<MetamaskAccountState> {
   };
 }
 
-async function sendEth(accountState: MetamaskAccountState, to: string = "") {
+async function sendEth(state: MetamaskState, to: string = "") {
   const transactionParameters = {
-    to: to.length > 0 ? to : accountState.ethereum.selectedAddress,
-    from: accountState.ethereum.selectedAddress,
+    to: to.length > 0 ? to : state.ethereum.selectedAddress,
+    from: state.ethereum.selectedAddress,
     value: "0x1",
     // gasPrice: "0x00",
     // gas: "0x00",
   };
 
-  return await accountState.ethereum.request({
+  return await state.ethereum.request({
     method: "eth_sendTransaction",
     params: [transactionParameters],
   });

@@ -44,7 +44,7 @@ export default function EthCard(props: EthCardProps) {
   );
 
   return (
-    <Card sx={{ minWidth: 400, display: props.display }}>
+    <Card sx={{ display: props.display }}>
       {content}
       {actions}
     </Card>

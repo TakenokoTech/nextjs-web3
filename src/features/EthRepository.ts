@@ -10,13 +10,18 @@ declare var window: {
   ethereum: Ethereum & undefined;
 };
 
+export interface EthState {
+  web3: Web3;
+  contract: Contract;
+}
+
 export interface Tweet {
   address: string;
   message: string;
   timestamp: number;
 }
 
-async function connect(): Promise<{ web3: Web3; contract: Contract }> {
+async function connect(): Promise<EthState> {
   // const host = (network: string) => `https://${network.toLowerCase()}.infura.io/v3/350520819d3d4ffaa47d0b8d57555148`;
   // return new Web3(new Web3.providers.HttpProvider(host(network)));
   const web3 = new Web3(window.ethereum);
@@ -55,14 +60,14 @@ async function callTweet(contract: Contract, text: string): Promise<void> {
   await contract.methods.tweet(text).send();
 }
 
-async function getPastTweet(contract: Contract, web3: Web3): Promise<Tweet[]> {
-  const events = await contract.getPastEvents("Tweet", {
+async function getPastTweet(state: EthState): Promise<Tweet[]> {
+  const events = await state.contract.getPastEvents("Tweet", {
     fromBlock: 0,
     toBlock: "latest",
   });
   return await Promise.all(
     events.map(async (e) => {
-      const block = await web3.eth.getBlock(e.blockNumber);
+      const block = await state.web3.eth.getBlock(e.blockNumber);
       return {
         address: e.returnValues["_from"],
         message: e.returnValues["_msg"],
