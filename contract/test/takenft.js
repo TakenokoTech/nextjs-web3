@@ -20,7 +20,12 @@ contract("Takenft", (account) => {
     // mint account:0 (tokenId = 0)
     await nft.mint(account[0], "sample0");
     expect(await nft.totalSupply()).to.be.a.bignumber.equal("1");
-    expect(await nft.tokenURI(0)).to.equal("sample0")
+    expect(await nft.tokenURI(0)).to.equal(
+      web3.utils.hexToNumberString(web3.utils.soliditySha3("sample01"))
+      // + web3.utils.hexToNumberString(web3.utils.soliditySha3("sample02"))
+      // + web3.utils.hexToNumberString(web3.utils.soliditySha3("sample03"))
+      // + web3.utils.hexToNumberString(web3.utils.soliditySha3("sample04"))
+    )
     expect(await nft.ownerOf(0)).to.equal(account[0]);
     expect(await nft.balanceOf(account[0])).to.be.a.bignumber.equal("1");
     expect(await nft.balanceOf(account[1])).to.be.a.bignumber.equal("0");
@@ -28,7 +33,12 @@ contract("Takenft", (account) => {
     // mint account:0 (tokenId = 1)
     await nft.mint(account[0], "sample1");
     expect(await nft.totalSupply()).to.be.a.bignumber.equal("2");
-    expect(await nft.tokenURI(1)).to.equal("sample1")
+    expect(await nft.tokenURI(1)).to.equal(
+      web3.utils.hexToNumberString(web3.utils.soliditySha3("sample11"))
+      // + web3.utils.hexToNumberString(web3.utils.soliditySha3("sample12"))
+      // + web3.utils.hexToNumberString(web3.utils.soliditySha3("sample13"))
+      // + web3.utils.hexToNumberString(web3.utils.soliditySha3("sample14"))
+    )
     expect(await nft.ownerOf(1)).to.equal(account[0]);
     expect(await nft.balanceOf(account[0])).to.be.a.bignumber.equal("2");
     expect(await nft.balanceOf(account[1])).to.be.a.bignumber.equal("0");
@@ -36,7 +46,12 @@ contract("Takenft", (account) => {
     // mint account:1 (tokenId = 2)
     await nft.mint(account[1], "sample2");
     expect(await nft.totalSupply()).to.be.a.bignumber.equal("3");
-    expect(await nft.tokenURI(2)).to.equal("sample2")
+    expect(await nft.tokenURI(2)).to.equal(
+      web3.utils.hexToNumberString(web3.utils.soliditySha3("sample21"))
+      // + web3.utils.hexToNumberString(web3.utils.soliditySha3("sample22"))
+      // + web3.utils.hexToNumberString(web3.utils.soliditySha3("sample23"))
+      // + web3.utils.hexToNumberString(web3.utils.soliditySha3("sample24"))
+    )
     expect(await nft.ownerOf(2)).to.equal(account[1]);
     expect(await nft.balanceOf(account[0])).to.be.a.bignumber.equal("2");
     expect(await nft.balanceOf(account[1])).to.be.a.bignumber.equal("1");
@@ -47,7 +62,12 @@ contract("Takenft", (account) => {
     // transfer (tokenId = 1)
     await nft.transferFrom(account[0], account[1], 1);
     expect(await nft.totalSupply()).to.be.a.bignumber.equal("3");
-    expect(await nft.tokenURI(1)).to.equal("sample1")
+    expect(await nft.tokenURI(1)).to.equal(
+      web3.utils.hexToNumberString(web3.utils.soliditySha3("sample11"))
+      // + web3.utils.hexToNumberString(web3.utils.soliditySha3("sample12"))
+      // + web3.utils.hexToNumberString(web3.utils.soliditySha3("sample13"))
+      // + web3.utils.hexToNumberString(web3.utils.soliditySha3("sample14"))
+    )
     expect(await nft.ownerOf(1)).to.equal(account[1]);
     expect(await nft.balanceOf(account[0])).to.be.a.bignumber.equal("1");
     expect(await nft.balanceOf(account[1])).to.be.a.bignumber.equal("2");
