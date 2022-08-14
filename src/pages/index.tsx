@@ -69,14 +69,17 @@ export default function Index({}) {
               balance={web3Balance}
             />
             <EthCard
-              title={"コントラクトに挨拶しませんか？"}
+              title={"Ethにあいさつ"}
               subtitle={""}
               onClick={onClickHello}
               buttonText={"ハローコントラクト！"}
               display={isRopsten ? null : "none"}
             >
-              <Typography variant="body2" display={web3Balance ? null : "none"}>
-                contract address: {CONTRACT_ADDRESS.toShortAddress()}
+              <Typography variant="body2">
+                イーサリアムに挨拶ができます。（ガス代がかかりません。）
+              </Typography>
+              <Typography variant="body2">
+                アドレスは {CONTRACT_ADDRESS.toShortAddress()} です。
               </Typography>
               <Box sx={{ p: 2 }}></Box>
               <TextField
